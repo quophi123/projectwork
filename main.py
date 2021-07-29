@@ -63,18 +63,20 @@ def main():
 
     if choices == 'Home':
         st.subheader('Home')
-        if data is not None:
-            col1 = st.multiselect("select",data.columns)
-            col2 = st.multiselect("select1",data.columns)
-            report = sv.compare(data[col1],data[col2])
-            report.show_html(open_browser=False)
-            display("SWEETVIZ_REPORT.html")
+        # if data is not None:
+        #     col1 = st.multiselect("select",data.columns)
+        #     col2 = st.multiselect("select1",data.columns)
+        #     report = sv.compare(data[col1],data[col2])
+        #     report.show_html(open_browser=False)
+        #     display("SWEETVIZ_REPORT.html")
     
     elif choices == 'Login':
         st.sidebar.subheader('Enter Your Details To Login')
-        username = st.sidebar.text_input('Username')
-        password = st.sidebar.text_input('Password',type='password')
-        if st.sidebar.checkbox('Login'):
+        with st.form('loging_form',clear_on_submit=True):
+            username = st.text_input('Username')
+            password = st.text_input('Password',type='password')
+            login = st.form_submit_button("Login")
+        if login:
             hashsed_pswd = generate_hashes(password)
             results = login_user(username,verify_password(password,hashsed_pswd))
             if results:
