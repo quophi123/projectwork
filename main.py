@@ -53,16 +53,14 @@ st.markdown(title_template,unsafe_allow_html=True)
 
 def main():
     #lets create object for class loadData
-    load = LoadData()
     menu = ['Home','Login','Create Account','About']
     choices = st.sidebar.selectbox("Menu",menu)
-    df = st.file_uploader("Upload Your Dataset Here",('csv','xlsx'))
-    new_df = load.load_data(df)
-    data = pd.DataFrame(new_df)
 
 
     if choices == 'Home':
+        
         st.subheader('Home')
+        st.subheader('Welcom To The HomePage')
         # if data is not None:
         #     col1 = st.multiselect("select",data.columns)
         #     col2 = st.multiselect("select1",data.columns)
@@ -71,16 +69,22 @@ def main():
         #     display("SWEETVIZ_REPORT.html")
     
     elif choices == 'Login':
+       
         st.sidebar.subheader('Enter Your Details To Login')
-        with st.form('loging_form',clear_on_submit=True):
+        with st.sidebar.form('loging_form'):
             username = st.text_input('Username')
             password = st.text_input('Password',type='password')
             login = st.form_submit_button("Login")
         if login:
             hashsed_pswd = generate_hashes(password)
             results = login_user(username,verify_password(password,hashsed_pswd))
+            username = 
             if results:
                 st.success('Login Successful, Welcome {}'.format(username))
+                load = LoadData()
+                df = st.file_uploader("Upload Your Dataset Here",('csv','xlsx'))
+                new_df = load.load_data(df)
+                data = pd.DataFrame(new_df)
                 new_df = load.load_data(df)
                 data = pd.DataFrame(new_df)
                 st.subheader('This is Activity Page')
