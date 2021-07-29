@@ -24,6 +24,7 @@ import streamlit.components.v1 as components
 from database import *
 import pickle
 import os
+from functions import *
 
 
 def display(report_html,width=1000,height=500):
@@ -31,6 +32,7 @@ def display(report_html,width=1000,height=500):
     page = report_file.read()
     components.html(page,width=width, height=height,scrolling=True)
 
+st.set_option('deprecation.showPyplotGlobalUse', False)
 
 #creating object for model saving and uploading
 saveModel = SaveModel()
@@ -69,26 +71,23 @@ def main():
         #     display("SWEETVIZ_REPORT.html")
     
     elif choices == 'Login':
-       
+        col = st.beta_columns(1)
         st.sidebar.subheader('Enter Your Details To Login')
-        with st.sidebar.form('loging_form'):
-            username = st.text_input('Username')
-            password = st.text_input('Password',type='password')
-            login = st.form_submit_button("Login")
+      
+        username = st.sidebar.text_input('Username')
+        password = st.sidebar.text_input('Password',type='password')
+        login = st.sidebar.checkbox('login')
         if login:
             hashsed_pswd = generate_hashes(password)
             results = login_user(username,verify_password(password,hashsed_pswd))
-            username = 
             if results:
                 st.success('Login Successful, Welcome {}'.format(username))
                 load = LoadData()
                 df = st.file_uploader("Upload Your Dataset Here",('csv','xlsx'))
                 new_df = load.load_data(df)
                 data = pd.DataFrame(new_df)
-                new_df = load.load_data(df)
-                data = pd.DataFrame(new_df)
                 st.subheader('This is Activity Page')
-                activitymenu = ['EDA','Data Visualization','Feature Engineering','Build Model','Make Prediction']
+                activitymenu = ['EDA','Data Visualization','Build Model','Make Prediction']
                 activity = st.sidebar.selectbox("Select an activity",activitymenu)
                 
                 if activity == 'EDA':
@@ -309,7 +308,7 @@ def main():
                         
                         
                         
-                 # perform feature engineering of dataset       
+                    # perform feature engineering of dataset       
                 elif activity == 'Feature Engineering':
                     st.subheader("Feature engineering page")   
                     st.dataframe(FeatureEngineering.feature_engineering(data))
@@ -323,26 +322,28 @@ def main():
                         with st.beta_expander("Expend to show data details"):
                             st.dataframe(data)
                     #sidebar for selecting target columns of the datasets for model building
+                    
+                    
                     def target(data):
-                        if st.sidebar.checkbox("Select Target Columns",help="This columns are uesd as referenced for `prediction`"):
-                            st.subheader("Select Target  **`Columns`**")
-                            try:
-                                selected_target=st.selectbox("Select",data.columns,help="This columns are uesd as referenced for `prediction`")
-                            except KeyError as e:
-                                st.warning("Please check Select Features check box")
-                            target_column = selected_target
-                        return target_column 
+                        #try:
+                            #if st.sidebar.checkbox("Select Target Columns",help="This columns are uesd as referenced for `prediction`"):
+                        st.subheader("Select Target  **`Columns`**") 
+                        selected_target=st.selectbox("Select",data.columns,help="This columns are uesd as referenced for `prediction`")
+                        #except KeyError as e:
+                            #st.warning("Please check Select Features check box")
+                            # st.stop()
+                        return selected_target 
                         
                     #sidebar for selecting features of the datasets for model building
                     def features(data):
-                        if st.sidebar.checkbox("Select Features",help="This columns are uesd as the dependent variable for the `target` "):
-                            st.subheader("Select Features **`data`**")
-                            try:
-                                selected_features=st.multiselect("Select",data.columns,help="This columns are uesd as referenced for `prediction`")
-                            except KeyError as e:
-                                st.warning("Please check Select Features check box")
-                            fetures_colomn = selected_features
-                        return fetures_colomn
+                        # try:
+                            # if st.sidebar.checkbox("Select Features",help="This columns are uesd as the dependent variable for the `target` "):
+                        st.subheader("Select Features **`data`**")
+                        selected_features=st.multiselect("Select",data.columns,help="This columns are uesd as referenced for `prediction`")
+                        #except KeyError as e:
+                            #st.warning("Please check Select Features check box")
+                            #st.stop()
+                        return selected_features
                     
                     
                     target = target(data)
@@ -362,7 +363,7 @@ def main():
                     col2.write(X)
                     
                         #sidebar for selecting the type of model to build
-                    model_type = ["Select prefered algorithm","Regression","Classification","Clustering"]
+                    model_type = ["Select prefered algorithm","Regression","Classification"]
                     model = st.sidebar.selectbox("Select Model Type",model_type,help="models are algorithms for `predicting` the `relationdhip` between data")
                     
                     
@@ -396,17 +397,17 @@ def main():
                         classifier_type = ["KNN","SVM","LogisticRegression"]
                         clf_name = st.sidebar.selectbox("Select {} Type".format(model),classifier_type,help="select the type of `classifier` you want to use")
                         try:
-                            mod=model_obj.classification(clf_name,X_train,y_train,X_test,y_test,accuracy_score)
+                            mod=classification(clf_name,X_train,y_train,X_test,y_test,accuracy_score)
                             save = st.info(" Do You Save Model")
                             save_as = st.text_input("Eneter how to save your model")
-                            #if st.checkbox("Save Model"):
-                            saveModel.save_model(mod,save_as="test1")
+                            if st.checkbox('save'):
+                                saveModel.save_model(mod,save_as='text1')
                         except KeyError as e:
                             st.error("Please Submit Parameters")
-                        
+                            
                         
                 elif activity == "Make Prediction":
-               
+                
                     st.subheader("Make Your Preditions Here")
                     try:
                         predict_values = int(st.text_input("Enter the number of columns to be entered"))
@@ -415,9 +416,9 @@ def main():
                             predict_values = st.number_input(f"Coulumn{i+1}")
                             dic.append( predict_values)
                         st.write(dic)
-                       
+                        
                         loaded_model = pickle.load(open("test1.pkl",'rb'))
-                  
+                    
                         loan=loaded_model.predict(np.array(dic).reshape(1,-1))
                         st.success("The Predicted Plant is{}".format(loan))
                     except Exception as e:
@@ -425,7 +426,7 @@ def main():
                             
             else:
                 st.warning("Please Enter Valid Credentials ")           
-                    
+                        
 
             #Account creation
     elif choices == "Create Account":
@@ -459,7 +460,8 @@ def main():
                 st.warning("No Field Should Be Empty")
 
     else:
-        st.subheader('This is the {} Page'.format(choices))
+        st.subheader(' {} Project '.format(choices))
+        st.write("This is a Data Science Process automation web app Developed by 4606318 under the supervision of `DR Frimpong Twum` a Senior Lectural at the Department of Computer Science KNUST")
         
 if __name__=="__main__":
     main()

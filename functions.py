@@ -18,14 +18,14 @@ import pickle
 class LoadData: 
 	@st.cache(suppress_st_warning=True)
 	def load_data(self,df):
-		try:
-			if df is not None:
-				df = pd.read_csv(df)
-				st.success("Data Loaded Successfully")
-			else:
-				st.error("Please Upload Data")
-		except:
+		
+		if df is not None:
+		
+			df = pd.read_csv(df)
+			st.success("Data Loaded Successfully")
+		else:	
 			st.error("Please Upload Data")
+			st.stop()
 		return df
 
 
@@ -265,11 +265,13 @@ class CleanData:
 	#function to cleand data
 
 	def null(self,data):
+     
 		if st.checkbox("Replace Null"):
 			new_data=EditColumns.replace_null(data)
 			st.dataframe(new_data)
 		else:
 			new_data = data
+			st.stop()
 		return new_data
 	
 
