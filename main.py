@@ -15,8 +15,6 @@ from sklearn import neighbors,metrics
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 plt.style.use('seaborn-deep')
-import json
-import requests
 import codecs
 import matplotlib.pyplot as plt
 import sweetviz as sv
@@ -89,7 +87,8 @@ def main():
                 st.subheader('This is Activity Page')
                 activitymenu = ['EDA','Data Visualization','Build Model','Make Prediction']
                 activity = st.sidebar.selectbox("Select an activity",activitymenu)
-                
+               
+                st.dataframe(data)
                 if activity == 'EDA':
                     st.subheader("Explore your data and analyze them here with sample built in")
 
@@ -97,7 +96,7 @@ def main():
                     #sidebar for EDA activities
                     eda_activities = ["select","View Data","Show Shape","Show Columns","Show Summary","Value Count","View Null Values","View Data Types"]
                     choices = st.radio("Select an EDA Activity",eda_activities,help="explore your `data` here")
-
+                    
 
 
 
@@ -297,14 +296,14 @@ def main():
                     clean = st.sidebar.radio("Choose Type of Cleaning",clean_type)
                     
                     if clean == 'Null Values':
+                        
                         data= clean_data_object.null(data)
+                        st.write('Data after cleaning')
                         st.dataframe(data)
-                    elif clean == 'Add Columns':
-                        new_data = edit_cols.get_newcolumn_names(data)
-                        st.dataframe(new_data)
-                    elif clean == 'Change Data Types':
-                        data=  clean_data_object.change_column_datatype(data)
-                        st.dataframe(data)
+                        download_file(data)
+                        st.success("File Downloaded Successfuly")
+                        
+                     
                         
                         
                         

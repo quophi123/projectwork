@@ -1,5 +1,5 @@
 from multiprocessing.dummy import dict
-
+import base64
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -335,3 +335,16 @@ class FeatureEngineering:
 		encode = LabelEncoder()
 		data[category] = data[category].apply(encode.fit_transform)
 		return data 
+
+
+
+
+def download_file(data):
+    timestr = time.strftime("%Y%m%d")
+    csvfile = data.to_csv()
+    b64 = base64.b64encode(csvfile.encode()).decode()
+    new_filename = "new_file_{}.csv".format(timestr)
+    st.markdown("### Download File Here")
+    href = f'<a href ="data:file/csv;base64,{b64}" download="{new_filename}">Download Here</a>'
+    st.markdown(href,unsafe_allow_html=True)
+	
