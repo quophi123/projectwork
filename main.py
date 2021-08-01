@@ -85,7 +85,7 @@ def main():
                 new_df = load.load_data(df)
                 data = pd.DataFrame(new_df)
                 st.subheader('This is Activity Page')
-                activitymenu = ['EDA','Data Visualization','Build Model','Make Prediction']
+                activitymenu = ['EDA','Data Visualization','Clean Data','Build Model','Make Prediction']
                 activity = st.sidebar.selectbox("Select an activity",activitymenu)
                
                 st.dataframe(data)
@@ -287,21 +287,16 @@ def main():
                         
                     
                     
-                elif activity == 'Data Cleaning': 
-                    #creating oblect for column editing and data types of colmns
-                    edit_cols = EditColumns()
+                elif activity == 'Clean Data': 
                     clean_data_object = CleanData()
-                    st.subheader('Your are looking at **`{}`**'.format(activity))
-                    clean_type = ["",'Null Values','Add Columns','Change Data Types']
-                    clean = st.sidebar.radio("Choose Type of Cleaning",clean_type)
-                    
-                    if clean == 'Null Values':
-                        
-                        data= clean_data_object.null(data)
+                    #creating oblect for column editing and data types of colmns
+                    data= clean_data_object.null(data)
+                    if st.checkbox("Inspect Data"):
                         st.write('Data after cleaning')
                         st.dataframe(data)
+                    if st.button("Download"):
                         download_file(data)
-                        st.success("File Downloaded Successfuly")
+                    #st.success("File Downloaded Successfuly")
                         
                      
                         

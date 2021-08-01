@@ -30,59 +30,6 @@ class LoadData:
 
 
 class EditColumns:
-	# #function to change data type
-	# def get_newcolumn_names(self,data):
-	# 	""" this function is to enable users add their own column
-	# 	names to their data or assign column names to the data if none """
-
-	# 	assign_columns = []
-	# 	st.write(data.columns)
-	# 	column_names = st.radio("Does your Data has column name",("Yes","No"))
-	# 	if column_names == "Yes":
-	# 		st.info("Ok.. no need for asigning new column names but u can change if you wish by selecting No")
-	# 	elif column_names == "No":
-	# 		st.info("Assign column names to your data")
-	# 		for i in range(data.shape[1]):
-	# 			if i == 0:
-	# 				column = st.text_input("enter index name")
-	# 			else:
-	# 				column = st.text_input("enter name for column{}".format(i))
-	# 			assign_columns.append(column)
-	# 		data.columns=list(assign_columns)
-	# 		if st.checkbox("data after asigning new columns"):
-	# 			st.dataframe(data)
-	# 	return data
-
-	# #function to change data type
-	# def change_column_datatype(self,data):
-	# 	""" this function is to change the data type of a column that needs to be changed"""
-	# 	try:
-	# 		col1, col2 = st.beta_columns(2)
-	# 		column_options = ['numerical', 'categorical','object']
-	# 		converters = {"int64":": numerical","float64":": object","object":": categorical"}
-	# 		h = []
-	# 		for i,v in converters.items():
-	# 			h.append(i)
-	# 		name=col1.multiselect("seleect",data.columns)
-	# 		c = col2.selectbox("columns",h)
-	# 		if st.checkbox("convert"):
-	# 			try:
-	# 				for name in name:
-	# 					data["{}".format(name)] = data["{}".format(name)].astype("{}".format(c))
-	# 				st.success("done")
-	# 				if st.checkbox("check"):
-	# 					st.dataframe(data.dtypes)
-	# 			except ValueError as e:
-	# 				st.warning("can not change the data type of some columns try one after the other")
-	# 	except KeyError as e:
-	# 		st.warning("please select a column to change")
-	# 	st.dataframe(data)
-	# 	return data
-
-	#return st.dataframe(null_vales)
-
-
-
 	#replacing all null values in data for accurate results
 	def replace_null(self,data):
 		choice = st.sidebar.radio("Manipulate Null Values",("","Yes","No"))
@@ -112,7 +59,6 @@ class EditColumns:
 		else:
 			data = data
 			st.info("No null Values")
-		
 		return data
 
 
@@ -123,28 +69,9 @@ def show_sammury(data):
 edit_null = EditColumns()
 
 def null_values(data):
-	data = edit_null.replace_null(data)
-	choice = st.sidebar.radio("Will you like replace or drop null values",("Yes","No"))
-	if choice == "Yes":
-		select = st.radio("select an option to perform",("replace","drop"))
-		if select == "replace":
-			choice = st.sidebar.radio("select type of replscement",("with mean","custom replace"))
-			if choice == "with mean":
-				data = data.fillna(data.mean())
-			elif choice == "custom replace":
-				try:
-					enter = float(st.text_input("enter replacementvalue"))
-					data = data.fillna(enter)
-				except ValueError as e:
-					st.warning("enter numericals only")
-		elif select == "drop":
-			axis=st.sidebar.slider("axis",0,1)
-			thresh=st.sidebar.slider("thresh",0,5)
-			if st.button("dropna"):
-				data=data.dropna(thresh=thresh)
-	elif choice == "No":
-		st.info("Ok")
-	return data
+	#data = edit_null.replace_null(data)
+	pass
+	
 
 class Model:
 	def add_parameter(self,clf_name):
@@ -262,18 +189,32 @@ class Model:
 		
 		
 class CleanData:    
-	#function to cleand data
-
+	#function to clean data
 	def null(self,data):
-     
-		if st.checkbox("Replace Null"):
-			new_data=EditColumns.replace_null(data)
-			st.dataframe(new_data)
-		else:
-			new_data = data
-			st.stop()
-		return new_data
-	
+		choice = st.sidebar.radio("Will you like replace or drop null values",("Yes","No"))
+		if choice == "Yes":
+			select = st.radio("select an option to perform",("replace","drop"))
+			if select == "replace":
+				choice = st.radio("select type of replscement",("with mean","custom replace"))
+				if choice == "with mean":
+					data = data.fillna(data.mean())
+				elif choice == "custom replace":
+					try:
+						enter = float(st.text_input("enter replacementvalue"))
+						data = data.fillna(enter)
+					except ValueError as e:
+						st.warning("enter numericals only")
+			elif select == "drop":
+				axis=st.slider("axis",0,1)
+				thresh=st.slider("thresh",0,5)
+				if st.button("dropna"):
+					data=data.dropna(axis = axis,thresh=thresh)
+					st.dataframe(data)
+		elif choice == "No":
+			st.info("Ok")
+			data = data
+		return data
+		
 
 
 class SaveModel:
