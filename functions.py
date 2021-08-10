@@ -7,6 +7,7 @@ import time
 timestr = time.strftime("%Y%m%d-%H%m%S")
 import fnmatch
 import os
+import io
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -14,6 +15,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import pickle
+import zipfile
+import tempfile
 
 class LoadData: 
 	@st.cache(suppress_st_warning=True)
@@ -159,7 +162,7 @@ class Model:
 		return classifier
 			
 			
-	def linear_regression(self):
+	def linear_regression(self,clf_name):
 		with st.form("form_random"):
 			col1,col2,col3 = st.beta_columns([2,1,2])
 			params={}
@@ -278,14 +281,48 @@ class FeatureEngineering:
 		return data 
 
 
+class Filedownload:
+    
+    def __init__(self):
+        pass
+    
+    
+    def download_file(data):
+        timestr = time.strftime("%Y%m%d")
+        csvfile = data.to_csv()
+        b64 = base64.b64encode(csvfile.encode()).decode()
+        new_filename = "new_file_{}.csv".format(timestr)
+        st.markdown("### Download File Here")
+        href = f'<a href ="data:file/csv;base64,{b64}" download="{new_filename}">Download Here</a>'
+        st.markdown(href,unsafe_allow_html=True)
+    
+    
+    
+    
+    def downloadmodel(model):
+        output_model = pickle.dumps(model)
+        b64 = base64.b64encode(output_model).decode()
+        new_filename = "new_file_{}.pkl".format(timestr)
+        st.markdown("### Download File Here")
+        href = f'<a href ="data:file/output_model;base64,{b64}" download="{new_filename}">Download Here</a>'
+        st.markdown(href,unsafe_allow_html=True)
+		
 
 
-def download_file(data):
-    timestr = time.strftime("%Y%m%d")
-    csvfile = data.to_csv()
-    b64 = base64.b64encode(csvfile.encode()).decode()
-    new_filename = "new_file_{}.csv".format(timestr)
-    st.markdown("### Download File Here")
-    href = f'<a href ="data:file/csv;base64,{b64}" download="{new_filename}">Download Here</a>'
-    st.markdown(href,unsafe_allow_html=True)
-	
+class LoadModel:
+    
+    def __int__(self):
+        pass
+    
+    
+    def load_model(model):
+        # file = io.open(model)
+        # loaded_model = pickle.load(file)
+        if model is not None:
+            # myzipfile = zipfile.ZipFile(model)
+            # with tempfile.TemporaryDirectory() as temp_dir:
+            #     myzipfile.extractall(tem_dir)
+            #     root_folder = myzipefile.namelist()[0]
+            #     model_dir = os.path.join(temp_dir,root_folder)
+            loaded = pd.read_pickle(f'{model}')
+        return model_dir

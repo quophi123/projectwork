@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 #import functions as fnx  
-from functions import Model,SaveModel,EditColumns,LoadData,FeatureEngineering
+from functions import Model,SaveModel,EditColumns,LoadData,FeatureEngineering,Filedownload,LoadModel
 from account import *
 import numpy as np
 import io
@@ -61,13 +61,6 @@ def main():
         
         st.subheader('Home')
         st.subheader('Welcom To The HomePage')
-        
-        # if data is not None:
-        #     col1 = st.multiselect("select",data.columns)
-        #     col2 = st.multiselect("select1",data.columns)
-        #     report = sv.compare(data[col1],data[col2])
-        #     report.show_html(open_browser=False)
-        #     display("SWEETVIZ_REPORT.html")
     
     elif choices == 'Login':
         col = st.beta_columns(1)
@@ -81,13 +74,14 @@ def main():
             results = login_user(username,verify_password(password,hashsed_pswd))
             if results:
                 st.success('Login Successful, Welcome {}'.format(username))
+                activitymenu = ['EDA','Data Visualization','Clean Data','Build Model','Make Prediction']
+                activity = st.sidebar.selectbox("Select an activity",activitymenu)
+                
                 load = LoadData()
                 df = st.file_uploader("Upload Your Dataset Here",('csv','xlsx'))
                 new_df = load.load_data(df)
                 data = pd.DataFrame(new_df)
                 st.subheader('This is Activity Page')
-                activitymenu = ['EDA','Data Visualization','Clean Data','Build Model','Make Prediction']
-                activity = st.sidebar.selectbox("Select an activity",activitymenu)
                
                 st.dataframe(data)
                 if activity == 'EDA':
@@ -296,7 +290,7 @@ def main():
                         st.write('Data after cleaning')
                         st.dataframe(data)
                     if st.button("Download"):
-                        download_file(data)
+                        Filedownload.download_file(data)
                     #st.success("File Downloaded Successfuly")
                         
                      
@@ -374,11 +368,10 @@ def main():
                     if model == "Regression":
                         st.subheader("Regression Page")
                         try:
-                            mod=model_obj.classification(clf_name,X_train,y_train,X_test,y_test,accuracy_score)
+                            model=classification(clf_name,X_train,y_train,X_test,y_test,accuracy_score)
                             save = st.info(" Do You Save Model")
-                            enter_model_name = st.text_input("Eneter how to save your model")
-                            #if st.button("Save Model"):
-                            saveModel.save_model(mod,save_as="test1")
+                            Filedownload.downloadmodel(model)
+                            #saveModel.save_model(mod,save_as="test1")
                         except KeyError as e:
                             st.error("Please Submit Parameters")
                         
@@ -392,17 +385,16 @@ def main():
                         classifier_type = ["KNN","SVM","LogisticRegression"]
                         clf_name = st.sidebar.selectbox("Select {} Type".format(model),classifier_type,help="select the type of `classifier` you want to use")
                         try:
-                            mod=classification(clf_name,X_train,y_train,X_test,y_test,accuracy_score)
+                            model=classification(clf_name,X_train,y_train,X_test,y_test,accuracy_score)
                             save = st.info(" Do You Save Model")
-                            save_as = st.text_input("Eneter how to save your model")
-                            if st.checkbox('save'):
-                                saveModel.save_model(mod,save_as='text1')
+                            Filedownload.downloadmodel(model)
                         except KeyError as e:
                             st.error("Please Submit Parameters")
                             
                         
                 elif activity == "Make Prediction":
-                
+                    upload_model = st.file_uploader("Upload your model",('.pkl'))
+                    # st.write(dir(upload_model))
                     st.subheader("Make Your Preditions Here")
                     try:
                         predict_values = int(st.text_input("Enter the number of columns to be entered"))
@@ -411,11 +403,10 @@ def main():
                             predict_values = st.number_input(f"Coulumn{i+1}")
                             dic.append( predict_values)
                         st.write(dic)
-                        
-                        loaded_model = pickle.load(open("test1.pkl",'rb'))
-                    
-                        loan=loaded_model.predict(np.array(dic).reshape(1,-1))
-                        st.success("The Predicted Plant is{}".format(loan))
+                        if st.button("Predict"):
+                            loaded_model = pickle.load(open('newmodel.pkl','rb'))
+                            predicted_value=loaded_model.predict(np.array(dic).reshape(1,-1))
+                            st.success("The Predicted Plant is{}".format(predicted_value))
                     except Exception as e:
                         st.warning(f"Please Enter number of columns {e}")
                             
